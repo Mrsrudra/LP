@@ -1,0 +1,61 @@
+// C++ (Arduino) Code with Pin Connection Comments
+#include <Servo.h>
+
+// ----------------------
+// PIN CONNECTIONS:
+// ----------------------
+// Servo Motor:
+//   Signal -> Pin 7
+//   VCC    -> 5V
+//   GND    -> GND
+//
+// Ultrasonic Sensor (3-pin type):
+//   SIG    -> Pin 6
+//   VCC    -> 5V
+//   GND    -> GND
+// ----------------------
+
+Servo servo7; // Servo object
+
+int vir_dist = 0; // Variable to store calculated distance
+
+// Function to read ultrasonic sensor distance
+long readUltrasonicDistance(int triggerPin, int echoPin) {
+  pinMode(triggerPin, OUTPUT); // Set trigger pin as output
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+
+  // Send a 10 microsecond pulse
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+
+  pinMode(echoPin, INPUT);
+  // Measure the time it takes for the echo to return
+  return pulseIn(echoPin, HIGH);
+}
+
+void setup() {
+  servo7.attach(7, 500, 2500); // Attach servo to pin 7 with limits
+  Serial.begin(9600);          // Start serial monitor
+}
+
+void loop() {
+  servo7.write(90); // Set servo position to 90 degrees
+
+  // Read distance from ultrasonic sensor on pin 6 (3-pin sensor)
+  vir_dist = 0.01723 * readUltrasonicDistance(6, 6);
+
+  // Print distance to serial monitor
+  Serial.print("Distance (cm): ");
+  Serial.println(vir_dist);
+
+  // Example: Move servo if object is detected farther than 100 cm
+  if (vir_dist >= 100) {
+    servo7.write(0);
+  } else {
+    servo7.write(90);
+  }
+
+  delay(500); // small delay for stability
+}
